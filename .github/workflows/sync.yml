@@ -1,0 +1,25 @@
+name: Sync Files
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天UTC 0点运行
+  workflow_dispatch:     # 支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 下载文件
+        run: |
+          curl -sL https://raw.githubusercontent.com/vernesong/OpenClash/tree/master/luci-app-openclash -o localfile
+
+      - name: 上传到当前仓库
+        uses: actions/upload-artifact@v3
+        with:
+          name: synced-file
+          path: localfile
+
+      - name: 提交变更
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '自动同步文件'
+          file_pattern: 'localfile'
